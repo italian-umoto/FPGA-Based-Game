@@ -1,8 +1,9 @@
-/*
- * Updates the col and row every clock cycle.
- * Assigns hsync, vsync, and visible at the appropriate col and row position.
+/* 
+ * Parameter: 
+ * Input: 
+ * Description: 
+ * Output: 
  */
-
 module vga(
     input logic clk,
     output logic hsync,

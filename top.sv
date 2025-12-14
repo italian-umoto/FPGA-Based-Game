@@ -2,21 +2,20 @@ module top (
     input logic clk_12M,
     output logic HSYNC,
     output logic VSYNC,
-    output logic [5:0] RGB,
+    output logic [5:0] RGB
 );
 
-    // Instantiate the clk using PLL
+    // Instantiate PLL module to generate 25.1 MHz clock from 
+    // the external 12MHz input
     logic pll_clk;
-    mypll mypll_inst(
-        .ref_clk_i (clk_12M),
-        .rst_n_i (1'b1),
-        .outcore_o (),
-        .outglobal_o (pll_clk)
-    );
+    mypll mypll_inst(.ref_clk_i (clk_12M), .rst_n_i (1'b1), .outcore_o (),
+                     .outglobal_o (pll_clk));
 
-    // Instantiate the vga module 
+    
     logic [9:0] row, col;
     logic visible;
+
+    // Instantiate VGA controller module to generate sync signals
     vga u_vga(
         .clk (pll_clk),
         .hsync (HSYNC),
@@ -26,8 +25,9 @@ module top (
         .visible (visible)
     );
 
-    // Instantiate the background generator to produce background pixels
     logic [5:0] bg_rgb;
+
+    // Insrtantiate background generator module to create background
     background_gen u_bggen(
         .visible (visible),
         .col (col),
@@ -35,37 +35,20 @@ module top (
         .bg_rgb (bg_rgb)
     );
 
-    // Dummy variable to cause the screen to black for now 
-    logic [28:0] counter;
-    logic blink;    // Modify Later
+    // Aribtary, change layer pls daniel pls pls pls 
+    logic [3:0] dividend_tens_value  = 4'd6;
+    logic [3:0] dividend_ones_value  = 4'd7;
 
-    always_ff @(posedge pll_clk) begin
-        counter <= counter + 29'd1;
-    end
-
-    assign blink = counter[27];
-
-    logic number_on;
-    logic [5:0] number_rgb;
-
-    // Instantiate the number module to genreate the number pixels
-    number_gen #(.X0(80), .Y0(130)) u_number (
-        .visible (visible),
-        .col (col),
-        .row (row),
-        .number_on (number_on),
-        .number_rgb (number_rgb)
-    );
-
-    // If blink is triggered, then switch to blink, otherwise choose bg pixels
-    always_comb begin
-        RGB = 6'b0;            
-
-        if (visible) begin
-            RGB = bg_rgb;
-            if (blink && number_on)
-                RGB = number_rgb;
-        end
-    end
+    // Dividend display module to display dividend
+    // Change position of word by altering .X_TENS()),.X_ONES(),.Y_DIG()
+    // Change blink speed by altering .BLINK_BIT()
+    // Input the dividend digits by changing dividend_tens_value and
+    // dividend_ones_value, respectively.
+    dividend_display #(.X_TENS(82),.X_ONES(107),.Y_DIG(130),.BLINK_BIT(27)) 
+        u_dividend_display (.clk (pll_clk), .visible (visible), .col (col),
+                            .row (row), .bg_rgb (bg_rgb),
+                            .dividend_tens_value(dividend_tens_value),
+                            .dividend_ones_value(dividend_ones_value),
+                            .rgb_out(RGB));
 
 endmodule
