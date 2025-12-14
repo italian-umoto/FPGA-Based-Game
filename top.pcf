@@ -1,0 +1,10 @@
+set_io clk_12M 20
+
+set_io VSYNC 23
+set_io HSYNC 25
+set_io RGB[5] 37
+set_io RGB[4] 31
+set_io RGB[3] 35
+set_io RGB[2] 32
+set_io RGB[1] 27
+set_io RGB[0] 26
