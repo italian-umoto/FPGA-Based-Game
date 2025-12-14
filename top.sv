@@ -35,20 +35,29 @@ module top (
         .bg_rgb (bg_rgb)
     );
 
-    // Aribtary, change layer pls daniel pls pls pls 
-    logic [3:0] dividend_tens_value  = 4'd6;
-    logic [3:0] dividend_ones_value  = 4'd7;
+    logic [9:0] num1, num2;
+    logic [2:0] op;
 
-    // Dividend display module to display dividend
-    // Change position of word by altering .X_TENS()),.X_ONES(),.Y_DIG()
-    // Change blink speed by altering .BLINK_BIT()
-    // Input the dividend digits by changing dividend_tens_value and
-    // dividend_ones_value, respectively.
-    dividend_display #(.X_TENS(82),.X_ONES(107),.Y_DIG(130),.BLINK_BIT(27)) 
-        u_dividend_display (.clk (pll_clk), .visible (visible), .col (col),
-                            .row (row), .bg_rgb (bg_rgb),
-                            .dividend_tens_value(dividend_tens_value),
-                            .dividend_ones_value(dividend_ones_value),
-                            .rgb_out(RGB));
+    // PLEASE READ: THIS IS WHERE YOU WILL ENTER THE TWO NUMBERS AND THE OPERATOR
+    // FYI: Operators are represented as follows: +0, -1, *2, /3, %4
+    assign num1 = 10'd54;
+    assign num2 = 10'd36;
+    assign op = 3'd4;
+
+    logic eq_on;
+    logic [5:0] eq_rgb;
+
+    equation_display u_eq (.num1 (num1), .num2 (num2), .operator(op),
+                           .visible (visible), .col (col), .row (row),
+                           .clk (pll_clk), .eq_on (eq_on), .eq_rgb (eq_rgb)
+                           );
+
+    always_comb begin
+        RGB = 6'b0;
+        if (visible) begin
+            RGB = bg_rgb;
+            if (eq_on) RGB = eq_rgb;
+        end
+    end
 
 endmodule

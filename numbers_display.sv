@@ -4,6 +4,77 @@
  * Description: 
  * Output: 
  */
+module two_digit_display #(
+    parameter int X_TENS = 80,
+    parameter int X_ONES = 100,
+    parameter int Y_DIG = 140,
+    parameter int BLINK_BIT = 27
+)(
+    input logic clk,
+    input logic visible,
+    input logic [9:0] col,
+    input logic [9:0] row,
+    input logic [5:0] bg_rgb,
+    output logic [5:0] rgb_out,
+    input logic [3:0] two_digit_tens_value,
+    input logic [3:0] two_digit_ones_value
+);
+
+    // blink counter
+    logic [28:0] counter;
+    logic blink;
+
+    always_ff @(posedge clk) begin
+        counter <= counter + 29'd1;
+    end
+
+    assign blink = counter[BLINK_BIT];
+
+    // digit sprites
+    logic tens_on, ones_on;
+    logic [5:0] tens_rgb, ones_rgb;
+
+    number_gen #(.X0(X_TENS), .Y0(Y_DIG)) u_two_digit_tens (
+        .visible (visible),
+        .col (col),
+        .row (row),
+        .digit (two_digit_tens_value),
+        .number_on (tens_on),
+        .number_rgb (tens_rgb)
+    );
+
+    number_gen #(.X0(X_ONES), .Y0(Y_DIG)) u_two_digit_ones (
+        .visible (visible),
+        .col (col),
+        .row (row),
+        .digit (two_digit_ones_value),
+        .number_on (ones_on),
+        .number_rgb (ones_rgb)
+    );
+
+    // composite over background
+    always_comb begin
+        rgb_out = 6'b0;
+
+        if (visible) begin
+            rgb_out = bg_rgb;
+
+            if (blink) begin
+                if (tens_on)       rgb_out = tens_rgb;
+                else if (ones_on)  rgb_out = ones_rgb;
+            end
+        end
+    end
+
+endmodule
+
+
+/* 
+ * Parameter: 
+ * Input: 
+ * Description: 
+ * Output: 
+ */
 module number_gen #(
     parameter int X0 = 100, // X coordinate of the top left corner
     parameter int Y0 = 100, // Y coordinate of the top left corner
@@ -47,77 +118,6 @@ module number_gen #(
 
     assign number_rgb = px;
 endmodule
-
-/* 
- * Parameter: 
- * Input: 
- * Description: 
- * Output: 
- */
-module dividend_display #(
-    parameter int X_TENS = 82,
-    parameter int X_ONES = 107,
-    parameter int Y_DIG = 130,
-    parameter int BLINK_BIT = 27
-)(
-    input logic clk,
-    input logic visible,
-    input logic [9:0] col,
-    input logic [9:0] row,
-    input logic [5:0] bg_rgb,
-    input logic [3:0] dividend_tens_value,
-    input logic [3:0] dividend_ones_value,
-    output logic [5:0] rgb_out
-);
-
-    // blink counter
-    logic [28:0] counter;
-    logic blink;
-
-    always_ff @(posedge clk) begin
-        counter <= counter + 29'd1;
-    end
-
-    assign blink = counter[BLINK_BIT];
-
-    // digit sprites
-    logic tens_on, ones_on;
-    logic [5:0] tens_rgb, ones_rgb;
-
-    number_gen #(.X0(X_TENS), .Y0(Y_DIG)) u_dividend_tens (
-        .visible (visible),
-        .col (col),
-        .row (row),
-        .digit (dividend_tens_value),
-        .number_on (tens_on),
-        .number_rgb (tens_rgb)
-    );
-
-    number_gen #(.X0(X_ONES), .Y0(Y_DIG)) u_dividend_ones (
-        .visible (visible),
-        .col (col),
-        .row (row),
-        .digit (dividend_ones_value),
-        .number_on (ones_on),
-        .number_rgb (ones_rgb)
-    );
-
-    // composite over background
-    always_comb begin
-        rgb_out = 6'b0;
-
-        if (visible) begin
-            rgb_out = bg_rgb;
-
-            if (blink) begin
-                if (tens_on)       rgb_out = tens_rgb;
-                else if (ones_on)  rgb_out = ones_rgb;
-            end
-        end
-    end
-
-endmodule
-
 
 
 /* 

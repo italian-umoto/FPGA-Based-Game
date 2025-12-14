@@ -4,7 +4,7 @@ from pathlib import Path
 # ===============================
 # USER-EDITABLE PARAMETERS
 # ===============================
-INPUT_IMAGE = r"vga_assets\PNG File\background.png"
+INPUT_IMAGE = r"vga_assets\PNG File\bg.png"
 BG_W = 160
 BG_H = 120
 
