@@ -1,9 +1,13 @@
 /* background_gen.sv
- * 
- * 
+ * Parameter: None
+ * Input: visible signal, column and row positions
+ * Description: This module generates background pixel data based on the
+ *              current column and row positions. It uses a ROM module to
+ *              retrieve pixel data for the background image.
+ * Output: bg_rgb - 6-bit background pixel data
  */
 module background_gen (
-    input  logic       visible,
+    input  logic visible,
     input  logic [9:0] col,
     input  logic [9:0] row,
     output logic [5:0] bg_rgb
@@ -29,11 +33,11 @@ module background_gen (
 endmodule
 
 /* bg_rom.sv
-   Parameter: Two parameters W and H to specify the width and height of 
-              the background image
-   Input: An address input to specify which pixel to retrieve
-   Description: The background ROM module that stores the background pixel 
-                data, given an address, outputs the corresponding pixel data. 
+ * Parameter: W (width), H (height) - specify the background image dimensions
+ * Input: addr - address to specify which pixel to retrieve
+ * Description: This module implements a ROM to store background pixel data and
+ *              retrieve pixel data based on the input address.
+ * Output: data - 6-bit pixel data
  */
 module bg_rom #(
     parameter int W = 160,
